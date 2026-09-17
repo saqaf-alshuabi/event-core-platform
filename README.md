@@ -1,6 +1,6 @@
 # Event Core Platform
 
-Events and ticketing app with a public marketplace and an admin dashboard.
+Events and ticketing platform with a public marketplace and an admin dashboard.
 
 ## Stack
 - Laravel 12
@@ -11,7 +11,7 @@ Events and ticketing app with a public marketplace and an admin dashboard.
 ## Features
 - Browse events, pick ticket tiers, checkout
 - Order history with QR / barcode tickets
-- Admin: events, tickets, orders, organizers, attendees
+- Admin dashboard: events, tickets, orders, organizers, attendees
 - Dark / light mode
 
 ## Setup
