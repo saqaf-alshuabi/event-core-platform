@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::softDeletes('users', UserController::class, 'user');
-    Route::resource('users', UserController::class)->only(['index', 'create', 'destroy']);
+    Route::resource('users', UserController::class)->only(['index', 'destroy']);
 
     Route::softDeletes('organizers', OrganizerController::class, 'organizer');
     Route::resource('organizers', OrganizerController::class)->only(['index', 'store', 'update', 'destroy']);

@@ -11,7 +11,7 @@ import users from '@/routes/users';
 import { type BreadcrumbItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import type { ColumnDef } from '@tanstack/vue-table';
-import { FolderX, UserRoundPlus } from 'lucide-vue-next';
+import { FolderX } from 'lucide-vue-next';
 import { computed, h, PropType } from 'vue';
 
 const props = defineProps({
@@ -95,7 +95,6 @@ const userColumns: ColumnDef<User>[] = [
         cell: ({ row }) =>
             h(ActionUser, {
                 id: row.original.id,
-                editRoute: users.edit(row.original.id).url,
                 deleteRoute: users.destroy(row.original.id).url,
             }),
     },
@@ -116,11 +115,6 @@ const deleteSusses = (id: number) => {
                     <Link title="Trash users" :href="users.trashed().url">
                         <Button variant="outline" class="h-8 w-8 p-0">
                             <FolderX class="h-4 w-4 text-primary" />
-                        </Button>
-                    </Link>
-                    <Link title="Add New User" :href="users.create().url">
-                        <Button variant="outline" class="h-8 w-8 p-0">
-                            <UserRoundPlus class="h-4 w-4 text-primary" />
                         </Button>
                     </Link>
                 </div>

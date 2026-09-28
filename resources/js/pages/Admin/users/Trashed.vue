@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import DataTable from '@/components/DataTable.vue'; // استيراد المكون
+import DataTable from '@/components/DataTable.vue';
 import SmartAvatar from '@/components/SmartAvatar.vue';
 import TrashedAction from '@/components/TrashedAction.vue';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,7 @@ import users from '@/routes/users';
 import { type BreadcrumbItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import type { ColumnDef } from '@tanstack/vue-table';
-import { FolderX, UserRoundPlus } from 'lucide-vue-next';
+import { ArrowLeft } from 'lucide-vue-next';
 import { computed, h, PropType } from 'vue';
 
 const props = defineProps({
@@ -117,14 +117,9 @@ const deleteSusses = (id: number) => {
         <div class="w-full">
             <div class="flex items-center py-4">
                 <div class="ml-auto flex items-center space-x-2">
-                    <Link title="Trash users" :href="users.create().url">
-                        <Button variant="outline" class="w- 8 h-8 p-0">
-                            <FolderX class="h-4 w-4 text-primary" />
-                        </Button>
-                    </Link>
-                    <Link title="Add New User" :href="users.create().url">
+                    <Link title="Back to users" :href="users.index().url">
                         <Button variant="outline" class="h-8 w-8 p-0">
-                            <UserRoundPlus class="h-4 w-4 text-primary" />
+                            <ArrowLeft class="h-4 w-4 text-primary" />
                         </Button>
                     </Link>
                 </div>

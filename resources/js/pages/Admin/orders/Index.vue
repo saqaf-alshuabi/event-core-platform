@@ -12,7 +12,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import type { ColumnDef } from '@tanstack/vue-table';
 
-import { BadgePlus, FolderX } from 'lucide-vue-next';
+import { FolderX } from 'lucide-vue-next';
 import { computed, h } from 'vue';
 
 const props = defineProps({
@@ -124,20 +124,13 @@ const deleteSusses = (id: number) => {
 </script>
 
 <template>
-    <!-- <img :src="props.orders[0].event.event_images[0].image_url" alt=""> -->
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="w-full">
             <div class="flex items-center py-4">
                 <div class="ml-auto flex items-center space-x-2">
-                    <Link as="button" :href="orders.trashed().url" type="Trash orders">
+                    <Link title="Trash orders" :href="orders.trashed().url">
                         <Button variant="outline" class="h-8 w-8 p-0">
                             <FolderX class="h-4 w-4 text-primary" />
-                        </Button>
-                    </Link>
-
-                    <Link type="Add New ticket" :href="orders.create().url">
-                        <Button variant="outline" class="h-8 w-8 p-0">
-                            <BadgePlus class="h-4 w-4 text-primary" />
                         </Button>
                     </Link>
                 </div>

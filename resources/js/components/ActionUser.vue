@@ -17,9 +17,9 @@ import DropdownMenuItem from './ui/dropdown-menu/DropdownMenuItem.vue';
 
 const props = defineProps<{
     id: number | string;
-    editRoute: any;
-    deleteRoute: any;
-    viewRoute?: any;
+    editRoute?: string;
+    deleteRoute: string;
+    viewRoute?: string;
 }>();
 
 const emit = defineEmits(['deleteSusses']);
@@ -52,11 +52,11 @@ const deleteItem = () => {
                 <span>View</span>
             </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem as-child>
+        <DropdownMenuItem v-if="editRoute" as-child>
             <Link :href="editRoute" class="flex items-center gap-2">
                 <Icon name="pencil" />
-                <span>Edit</span></Link
-            >
+                <span>Edit</span>
+            </Link>
         </DropdownMenuItem>
         <DropdownMenuItem class="text-destructive focus:bg-destructive/10 focus:text-destructive" @select="openAlert"> Delete </DropdownMenuItem>
     </Actions>

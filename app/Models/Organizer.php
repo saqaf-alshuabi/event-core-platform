@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Organizer extends Model
@@ -15,16 +16,12 @@ class Organizer extends Model
 
     protected $fillable = ['name', 'user_id'];
 
-    /**
-     *  Get the users associated with the organizer.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, Organizer>
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
-    public function events()
+
+    public function events(): HasMany
     {
         return $this->hasMany(Event::class);
     }
