@@ -6,8 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
-// eslint-disable-next-line vue/no-dupe-keys
-import users from '@/routes/users';
+import usersRoutes from '@/routes/users';
 import { type BreadcrumbItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import type { ColumnDef } from '@tanstack/vue-table';
@@ -28,7 +27,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
     {
         title: 'Users',
-        href: users.index().url,
+        href: usersRoutes.index().url,
     },
 ];
 
@@ -95,16 +94,11 @@ const userColumns: ColumnDef<User>[] = [
         cell: ({ row }) =>
             h(ActionUser, {
                 id: row.original.id,
-                deleteRoute: users.destroy(row.original.id).url,
+                deleteRoute: usersRoutes.destroy(row.original.id).url,
             }),
     },
 ];
 
-// --- DELETE LOGIC ---
-const deleteSusses = (id: number) => {
-    // eslint-disable-next-line vue/no-mutating-props
-    props.users.value = props.users.value.filter((user) => user.id !== id);
-};
 </script>
 
 <template>
@@ -112,14 +106,14 @@ const deleteSusses = (id: number) => {
         <div class="w-full">
             <div class="flex items-center py-4">
                 <div class="ml-auto flex items-center space-x-2">
-                    <Link title="Trash users" :href="users.trashed().url">
+                    <Link title="Trash users" :href="usersRoutes.trashed().url">
                         <Button variant="outline" class="h-8 w-8 p-0">
                             <FolderX class="h-4 w-4 text-primary" />
                         </Button>
                     </Link>
                 </div>
             </div>
-            <DataTable :data="data" :columns="userColumns" @deleteSusses="deleteSusses" />
+            <DataTable :data="data" :columns="userColumns" />
         </div>
     </AppLayout>
 </template>

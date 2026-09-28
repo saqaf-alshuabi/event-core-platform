@@ -13,9 +13,15 @@ import { useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import Actions from './Actions.vue';
 import DropdownMenuItem from './ui/dropdown-menu/DropdownMenuItem.vue';
-const props = defineProps(['id', 'restoreRoute', 'deleteRoute']);
-const emit = defineEmits(['deleteSusses', 'restoreSusses']);
+
+const props = defineProps<{
+    id: number | string;
+    restoreRoute: string;
+    deleteRoute: string;
+}>();
+
 const isAlertOpen = ref(false);
+const form = useForm({});
 
 const openAlert = () => {
     isAlertOpen.value = true;
@@ -24,31 +30,21 @@ const openAlert = () => {
 const closeAlert = () => {
     isAlertOpen.value = false;
 };
-const form = useForm({});
+
 const deleteItem = () => {
-
     form.delete(props.deleteRoute, {
-        onSuccess: () => {
-            emit('deleteSusses', props.id);
-        },
+        onFinish: closeAlert,
     });
-
-    closeAlert();
 };
 
 const restoreItem = () => {
-    form.put(props.restoreRoute, {
-        onSuccess: () => {
-            emit('restoreSusses', props.id);
-        },
-    });
+    form.put(props.restoreRoute);
 };
 </script>
 
 <template>
     <Actions>
         <DropdownMenuItem class="text-primary" @select="restoreItem"> Restore </DropdownMenuItem>
-
         <DropdownMenuItem class="text-destructive" variant="destructive" @select="openAlert"> Delete </DropdownMenuItem>
     </Actions>
 

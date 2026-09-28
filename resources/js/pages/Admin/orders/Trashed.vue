@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
-import orders from '@/routes/orders';
+import ordersRoutes from '@/routes/orders';
 
 import { type BreadcrumbItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
@@ -28,11 +28,11 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
     {
         title: 'Orders',
-        href: orders.index().url,
+        href: ordersRoutes.index().url,
     },
     {
         title: 'Trashed Orders',
-        href: orders.trashed().url,
+        href: ordersRoutes.trashed().url,
     },
 ];
 
@@ -112,17 +112,14 @@ const userColumns: ColumnDef<Order>[] = [
                 { class: 'relative' },
                 h(TrashedAction, {
                     id: row.original.id,
-                    restoreRoute: orders.restore(row.original.id).url,
-                    forceDeleteRoute: orders.delete(row.original.id).url,
+                    restoreRoute: ordersRoutes.restore(row.original.id).url,
+                    deleteRoute: ordersRoutes.delete(row.original.id).url,
                 }),
             );
         },
     },
 ];
 
-const deleteSusses = (id: number) => {
-    props.orders.value = props.orders.value.filter((order: { id: number }) => order.id !== id);
-};
 
 </script>
 
@@ -131,14 +128,14 @@ const deleteSusses = (id: number) => {
         <div class="w-full">
             <div class="flex items-center py-4">
                 <div class="ml-auto flex items-center space-x-2">
-                    <Link title="Back to orders" :href="orders.index().url">
+                    <Link title="Back to orders" :href="ordersRoutes.index().url">
                         <Button variant="outline" class="h-8 w-8 p-0">
                             <ArrowLeft class="h-4 w-4 text-primary" />
                         </Button>
                     </Link>
                 </div>
             </div>
-            <DataTable :data="data" :columns="userColumns" @deleteSusses="deleteSusses" columnFilter="ticketType" />
+            <DataTable :data="data" :columns="userColumns" columnFilter="ticketType" />
         </div>
     </AppLayout>
 </template>

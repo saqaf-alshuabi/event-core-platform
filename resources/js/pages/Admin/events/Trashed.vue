@@ -6,8 +6,7 @@ import TrashedAction from '@/components/TrashedAction.vue';
 import { Checkbox } from '@/components/ui/checkbox';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
-import events from '@/routes/events';
-// eslint-disable-next-line vue/no-dupe-keys
+import eventsRoutes from '@/routes/events';
 import { type BreadcrumbItem } from '@/types';
 import type { ColumnDef } from '@tanstack/vue-table';
 import { computed, h } from 'vue';
@@ -26,11 +25,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 
     {
         title: 'events',
-        href: events.index().url,
+        href: eventsRoutes.index().url,
     },
     {
         title: 'Trashed',
-        href: events.trashed().url,
+        href: eventsRoutes.trashed().url,
     },
 ];
 
@@ -110,19 +109,14 @@ const userColumns: ColumnDef<events>[] = [
         cell: ({ row }) =>
             h(TrashedAction, {
                 id: row.original.id,
-                restoreRoute: events.restore(row.original.id).url,
-                deleteRoute: events.delete(row.original.id).url,
+                restoreRoute: eventsRoutes.restore(row.original.id).url,
+                deleteRoute: eventsRoutes.delete(row.original.id).url,
                 showRestore: true,
                 showForceDelete: true,
             }),
     },
 ];
 
-// --- DELETE LOGIC ---
-const deleteSusses = (id: number) => {
-    // eslint-disable-next-line vue/no-mutating-props
-    props.events.value = props.events.value.filter((event: { id: number }) => event.id !== id);
-};
 </script>
 
 <template>
@@ -130,10 +124,10 @@ const deleteSusses = (id: number) => {
         <div class="w-full">
             <div class="flex items-center py-4">
                 <div class="ml-auto flex items-center space-x-2">
-                    <ButtonBack :href="events.index().url" />
+                    <ButtonBack :href="eventsRoutes.index().url" />
                 </div>
             </div>
-            <DataTable :data="data" :columns="userColumns" @deleteSusses="deleteSusses" columnFilter="title" />
+            <DataTable :data="data" :columns="userColumns" columnFilter="title" />
         </div>
     </AppLayout>
 </template>

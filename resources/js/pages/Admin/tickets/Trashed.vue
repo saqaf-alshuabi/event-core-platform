@@ -6,8 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
-import tickets from '@/routes/tickets';
-// eslint-disable-next-line vue/no-dupe-keys
+import ticketsRoutes from '@/routes/tickets';
 import { type BreadcrumbItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import type { ColumnDef } from '@tanstack/vue-table';
@@ -29,11 +28,11 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
     {
         title: 'Tickets',
-        href: tickets.index().url,
+        href: ticketsRoutes.index().url,
     },
     {
         title: 'Trashed Tickets',
-        href: tickets.trashed().url,
+        href: ticketsRoutes.trashed().url,
     },
 ];
 
@@ -113,17 +112,14 @@ const userColumns: ColumnDef<Tickets>[] = [
         cell: ({ row }) =>
             h(TrashedAction, {
                 id: row.original.id,
-                restoreRoute: tickets.restore(row.original.id).url,
-                deleteRoute: tickets.delete(row.original.id).url,
+                restoreRoute: ticketsRoutes.restore(row.original.id).url,
+                deleteRoute: ticketsRoutes.delete(row.original.id).url,
                 showRestore: true,
                 showForceDelete: true,
             }),
     },
 ];
 
-const deleteSusses = (id: number) => {
-    props.tickets.value = props.tickets.value.filter((ticket: { id: number }) => ticket.id !== id);
-};
 </script>
 
 <template>
@@ -132,14 +128,14 @@ const deleteSusses = (id: number) => {
         <div class="w-full">
             <div class="flex items-center py-4">
                 <div class="ml-auto flex items-center space-x-2">
-                    <Link type="Add New ticket" :href="tickets.create().url">
+                    <Link type="Add New ticket" :href="ticketsRoutes.create().url">
                         <Button variant="outline" class="h-8 w-8 p-0">
                             <BadgePlus class="h-4 w-4 text-primary" />
                         </Button>
                     </Link>
                 </div>
             </div>
-            <DataTable :data="data" :columns="userColumns" @deleteSusses="deleteSusses" columnFilter="ticketType" />
+            <DataTable :data="data" :columns="userColumns" columnFilter="ticketType" />
         </div>
     </AppLayout>
 </template>

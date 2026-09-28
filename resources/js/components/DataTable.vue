@@ -10,7 +10,6 @@ import { ref } from 'vue';
 import NoData from './message/NoData.vue';
 import { valueUpdater } from './ui/table/utils';
 
-// الخصائص التي يستقبلها المكون
 const props = withDefaults(
     defineProps<{
         data: any[];
@@ -22,13 +21,11 @@ const props = withDefaults(
     },
 );
 
-// حالة الجدول
 const sorting = ref<SortingState>([]);
 const columnFilters = ref<ColumnFiltersState>([]);
 const columnVisibility = ref<VisibilityState>({});
 const rowSelection = ref({});
 
-// إعداد محرك TanStack Table
 const table = useVueTable({
     get data() {
         return props.data;
@@ -42,15 +39,11 @@ const table = useVueTable({
     onColumnFiltersChange: (updaterOrValue) => valueUpdater(updaterOrValue, columnFilters),
     onColumnVisibilityChange: (updaterOrValue) => valueUpdater(updaterOrValue, columnVisibility),
     onRowSelectionChange: (updaterOrValue) => valueUpdater(updaterOrValue, rowSelection),
-
-    // ⬇️⬇️⬇️ السطر الذي يحدد عدد العناصر في الصفحة (10 صفوف) ⬇️⬇️⬇️
     initialState: {
         pagination: {
             pageSize: 6,
         },
     },
-    // ⬆️⬆️⬆️ السطر الذي يحدد عدد العناصر في الصفحة (10 صفوف) ⬆️⬆️⬆️
-
     state: {
         get sorting() {
             return sorting.value;

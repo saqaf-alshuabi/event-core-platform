@@ -6,8 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
-import events from '@/routes/events';
-// eslint-disable-next-line vue/no-dupe-keys
+import eventsRoutes from '@/routes/events';
 import { type BreadcrumbItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import type { ColumnDef } from '@tanstack/vue-table';
@@ -36,7 +35,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
     {
         title: 'Events',
-        href: events.index().url,
+        href: eventsRoutes.index().url,
     },
 ];
 
@@ -108,18 +107,15 @@ const userColumns: ColumnDef<Events>[] = [
                 { class: 'relative' },
                 h(ActionUser, {
                     id: row.original.id,
-                    editRoute: events.edit(row.original.id).url,
-                    deleteRoute: events.destroy(row.original.id).url,
-                    viewRoute: events.show(row.original.id).url,
+                    editRoute: eventsRoutes.edit(row.original.id).url,
+                    deleteRoute: eventsRoutes.destroy(row.original.id).url,
+                    viewRoute: eventsRoutes.show(row.original.id).url,
                 }),
             );
         },
     },
 ];
 
-const deleteSusses = (id: number) => {
-    props.events.value = props.events.value.filter((event: { id: number }) => event.id !== id);
-};
 </script>
 
 <template>
@@ -127,20 +123,20 @@ const deleteSusses = (id: number) => {
         <div class="w-full">
             <div class="flex items-center py-4">
                 <div class="ml-auto flex items-center space-x-2">
-                    <Link title="Trash events" :href="events.trashed().url">
+                    <Link title="Trash events" :href="eventsRoutes.trashed().url">
                         <Button variant="outline" class="h-8 w-8 p-0">
                             <FolderX class="h-4 w-4 text-primary" />
                         </Button>
                     </Link>
 
-                    <Link title="Add New event" :href="events.create().url">
+                    <Link title="Add New event" :href="eventsRoutes.create().url">
                         <Button variant="outline" class="h-8 w-8 p-0">
                             <BadgePlus class="h-4 w-4 text-primary" />
                         </Button>
                     </Link>
                 </div>
             </div>
-            <DataTable :data="data" :columns="userColumns" @deleteSusses="deleteSusses" columnFilter="title" />
+            <DataTable :data="data" :columns="userColumns" columnFilter="title" />
         </div>
     </AppLayout>
 </template>

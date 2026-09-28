@@ -6,13 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
-import organizers from '@/routes/organizers';
-import users from '@/routes/users';
-// eslint-disable-next-line vue/no-dupe-keys
+import organizersRoutes from '@/routes/organizers';
+import usersRoutes from '@/routes/users';
 import { type BreadcrumbItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import type { ColumnDef } from '@tanstack/vue-table';
-import { FolderX, UserRoundPlus } from 'lucide-vue-next';
+import { FolderX } from 'lucide-vue-next';
 import { computed, h } from 'vue';
 
 const props = defineProps({
@@ -29,11 +28,11 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
     {
         title: 'Users',
-        href: users.index().url,
+        href: usersRoutes.index().url,
     },
     {
         title: 'Organizers',
-        href: organizers.index().url,
+        href: organizersRoutes.index().url,
     },
 ];
 
@@ -108,17 +107,11 @@ const userColumns: ColumnDef<Organizers>[] = [
         cell: ({ row }) =>
             h(ActionUser, {
                 id: row.original.id,
-                editRoute: organizers.edit(row.original.id).url,
-                deleteRoute: organizers.destroy(row.original.id).url,
+                deleteRoute: organizersRoutes.destroy(row.original.id).url,
             }),
     },
 ];
 
-// --- DELETE LOGIC ---
-const deleteSusses = (id: number) => {
-    // eslint-disable-next-line vue/no-mutating-props
-    props.organizers.value = props.organizers.value.filter((organizer: { id: number }) => organizer.id !== id);
-};
 </script>
 
 <template>
@@ -126,20 +119,14 @@ const deleteSusses = (id: number) => {
         <div class="w-full">
             <div class="flex items-center py-4">
                 <div class="ml-auto flex items-center space-x-2">
-                    <Link title="Trash organizers" :href="organizers.trashed().url">
+                    <Link title="Trash organizers" :href="organizersRoutes.trashed().url">
                         <Button variant="outline" class="h-8 w-8 p-0">
                             <FolderX class="h-4 w-4 text-primary" />
                         </Button>
                     </Link>
-
-                    <Link title="Add New organizer" :href="organizers.create().url">
-                        <Button variant="outline" class="h-8 w-8 p-0">
-                            <UserRoundPlus class="h-4 w-4 text-primary" />
-                        </Button>
-                    </Link>
                 </div>
             </div>
-            <DataTable :data="data" :columns="userColumns" @deleteSusses="deleteSusses" />
+            <DataTable :data="data" :columns="userColumns" />
         </div>
     </AppLayout>
 </template>

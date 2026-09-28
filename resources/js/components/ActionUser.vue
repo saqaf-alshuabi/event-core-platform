@@ -22,8 +22,8 @@ const props = defineProps<{
     viewRoute?: string;
 }>();
 
-const emit = defineEmits(['deleteSusses']);
 const isAlertOpen = ref(false);
+const form = useForm({});
 
 const openAlert = () => {
     isAlertOpen.value = true;
@@ -33,13 +33,9 @@ const closeAlert = () => {
     isAlertOpen.value = false;
 };
 
-const form = useForm({});
 const deleteItem = () => {
     form.delete(props.deleteRoute, {
-        onSuccess: () => {
-            closeAlert();
-            emit('deleteSusses', props.id);
-        },
+        onFinish: closeAlert,
     });
 };
 </script>
@@ -58,7 +54,9 @@ const deleteItem = () => {
                 <span>Edit</span>
             </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem class="text-destructive focus:bg-destructive/10 focus:text-destructive" @select="openAlert"> Delete </DropdownMenuItem>
+        <DropdownMenuItem class="text-destructive focus:bg-destructive/10 focus:text-destructive" @select="openAlert">
+            Delete
+        </DropdownMenuItem>
     </Actions>
 
     <AlertDialog :open="isAlertOpen" @update:open="isAlertOpen = $event">
