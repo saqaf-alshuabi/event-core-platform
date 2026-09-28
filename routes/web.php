@@ -3,20 +3,16 @@
 use App\Http\Controllers\Web\ContactController;
 use App\Http\Controllers\Web\EventController;
 use App\Http\Controllers\Web\OrderController;
+use App\Http\Controllers\Web\PageController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome');
-})->name('home');
+Route::controller(PageController::class)->group(function () {
+    Route::get('/', 'home')->name('home');
+    Route::get('about', 'about')->name('about');
+    Route::get('contact', 'contact')->name('contact');
+});
 
-Route::get('about', function () {
-    return Inertia::render('Web/About');
-})->name('about');
-
-Route::get('contact', function () {
-    return Inertia::render('Web/Contact');
-})->name('contact');
+Route::post('contacts', [ContactController::class, 'store'])->name('contacts.store');
 
 Route::prefix('web')
     ->name('web.')
@@ -24,24 +20,15 @@ Route::prefix('web')
         Route::get('events', [EventController::class, 'index'])->name('events.index');
         Route::get('events/{event}', [EventController::class, 'show'])->name('events.show');
 
-        Route::get('shopping', function () {
-            return Inertia::render('Web/carts/Shopping');
-        })->name('shopping');
+        Route::get('shopping', [PageController::class, 'shopping'])->name('shopping');
 
-        Route::get('checkout', function () {
-            return Inertia::render('Web/carts/Checkout');
-        })->middleware(['auth', 'verified'])->name('checkout');
-
-        Route::post('orders', [OrderController::class, 'store'])
-            ->middleware(['auth', 'verified'])
-            ->name('orders.store');
+        Route::middleware(['auth', 'verified'])->group(function () {
+            Route::get('checkout', [PageController::class, 'checkout'])->name('checkout');
+            Route::post('orders', [OrderController::class, 'store'])->name('orders.store');
+        });
     });
 
-Route::resource('contacts', ContactController::class)->only(['store']);
-
-Route::get('dashboard', function () {
-    return Inertia::render('Dashboard');
-})
+Route::get('dashboard', [PageController::class, 'dashboard'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 

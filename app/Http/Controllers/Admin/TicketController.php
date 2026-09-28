@@ -2,104 +2,101 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Inertia\Inertia;
-
+use App\Http\Controllers\Concerns\SoftDeletesResource;
 use App\Http\Controllers\Controller;
-use App\Models\Ticket;
 use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
 use App\Models\Event;
+use App\Models\Ticket;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class TicketController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    use SoftDeletesResource;
+
+    public function index(): Response
     {
-        $tickets = Ticket::with('event.eventImages')->latest('updated_at')->get();
-        return Inertia::render('Admin/tickets/Index', ['tickets' => $tickets]);
+        return Inertia::render('Admin/tickets/Index', [
+            'tickets' => Ticket::query()->with('event.eventImages')->latest('updated_at')->get(),
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function create(): Response
     {
-        $events = Event::latest('updated_at')->get();
-        return Inertia::render('Admin/tickets/Create', ['events' => $events]);
+        return Inertia::render('Admin/tickets/Create', [
+            'events' => Event::query()->latest('updated_at')->get(['id', 'title']),
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreTicketRequest $request)
+    public function store(StoreTicketRequest $request): RedirectResponse
     {
         Ticket::create($request->validated());
-        session()->flash('success', 'Ticket created successfully.');
-        return redirect()->route('tickets.index');
+
+        return redirect()
+            ->route('tickets.index')
+            ->with('success', 'Ticket created successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Ticket $ticket)
+    public function edit(Ticket $ticket): Response
     {
-        //
+        return Inertia::render('Admin/tickets/Edit', [
+            'ticket' => $ticket,
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Ticket $ticket)
-    {
-        return Inertia::render('Admin/tickets/Edit', ['ticket' => $ticket]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateTicketRequest $request, Ticket $ticket)
+    public function update(UpdateTicketRequest $request, Ticket $ticket): RedirectResponse
     {
         $ticket->update($request->validated());
-        session()->flash('success', 'Ticket updated successfully.');
-        return redirect()->route('tickets.index');
+
+        return redirect()
+            ->route('tickets.index')
+            ->with('success', 'Ticket updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Ticket $ticket)
+    public function destroy(Ticket $ticket): RedirectResponse
     {
         $ticket->delete();
-        session()->flash('success', 'Ticket deleted successfully.');
-        return redirect()->route('tickets.index');
-    }
-    /**
-     * Display a listing of the trashed resources.
-     */
-    public function trashed()
-    {
-        $tickets = Ticket::onlyTrashed()->with('event.eventImages')->latest('updated_at')->get();
-        return Inertia::render('Admin/tickets/Trashed', ['tickets' => $tickets]);
+
+        return redirect()
+            ->route('tickets.index')
+            ->with('success', 'Ticket deleted successfully.');
     }
 
-    /**
-     * Restore the specified resource.
-     */
-    public function restore(Ticket $ticket)
+    public function trashed(): Response
     {
-        $ticket->restore();
-        session()->flash('success', 'Ticket restored successfully.');
-        return redirect()->route('tickets.trashed');
+        return $this->renderTrashed();
     }
-    /**
-     * Delete the specified resource.
-     */
-    public function delete(Ticket $ticket)
+
+    public function restore(Ticket $ticket): RedirectResponse
     {
-        $ticket->forceDelete();
-        session()->flash('success', 'Ticket deleted permanently.');
-        return redirect()->route('tickets.trashed');
+        return $this->restoreModel($ticket);
+    }
+
+    public function delete(Ticket $ticket): RedirectResponse
+    {
+        return $this->forceDeleteModel($ticket);
+    }
+
+    protected function softDeleteQuery(): Builder
+    {
+        return Ticket::query()->with('event.eventImages');
+    }
+
+    protected function trashedInertiaPage(): string
+    {
+        return 'Admin/tickets/Trashed';
+    }
+
+    protected function trashedPropName(): string
+    {
+        return 'tickets';
+    }
+
+    protected function trashedRouteName(): string
+    {
+        return 'tickets.trashed';
     }
 }

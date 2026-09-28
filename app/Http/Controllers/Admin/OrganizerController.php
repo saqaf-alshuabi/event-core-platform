@@ -2,28 +2,25 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\SoftDeletesResource;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreOrganizerRequest;
 use App\Http\Requests\UpdateOrganizerRequest;
 use App\Models\Organizer;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class OrganizerController extends Controller
 {
+    use SoftDeletesResource;
+
     public function index(): Response
     {
-        $organizers = Organizer::with('user')->latest('updated_at')->get();
-
         return Inertia::render('Admin/organizers/Index', [
-            'organizers' => $organizers,
+            'organizers' => Organizer::query()->with('user')->latest('updated_at')->get(),
         ]);
-    }
-
-    public function create(): RedirectResponse
-    {
-        return redirect()->route('organizers.index');
     }
 
     public function store(StoreOrganizerRequest $request): RedirectResponse
@@ -33,16 +30,6 @@ class OrganizerController extends Controller
         return redirect()
             ->route('organizers.index')
             ->with('success', 'Organizer created successfully.');
-    }
-
-    public function show(Organizer $organizer): RedirectResponse
-    {
-        return redirect()->route('organizers.index');
-    }
-
-    public function edit(Organizer $organizer): RedirectResponse
-    {
-        return redirect()->route('organizers.index');
     }
 
     public function update(UpdateOrganizerRequest $request, Organizer $organizer): RedirectResponse
@@ -65,28 +52,36 @@ class OrganizerController extends Controller
 
     public function trashed(): Response
     {
-        $organizers = Organizer::with('user')->onlyTrashed()->latest('updated_at')->get();
-
-        return Inertia::render('Admin/organizers/Trashed', [
-            'organizers' => $organizers,
-        ]);
+        return $this->renderTrashed();
     }
 
     public function restore(Organizer $organizer): RedirectResponse
     {
-        $organizer->restore();
-
-        return redirect()
-            ->route('organizers.trashed')
-            ->with('success', 'Organizer restored successfully.');
+        return $this->restoreModel($organizer);
     }
 
     public function delete(Organizer $organizer): RedirectResponse
     {
-        $organizer->forceDelete();
+        return $this->forceDeleteModel($organizer);
+    }
 
-        return redirect()
-            ->route('organizers.trashed')
-            ->with('success', 'Organizer deleted permanently.');
+    protected function softDeleteQuery(): Builder
+    {
+        return Organizer::query()->with('user');
+    }
+
+    protected function trashedInertiaPage(): string
+    {
+        return 'Admin/organizers/Trashed';
+    }
+
+    protected function trashedPropName(): string
+    {
+        return 'organizers';
+    }
+
+    protected function trashedRouteName(): string
+    {
+        return 'organizers.trashed';
     }
 }

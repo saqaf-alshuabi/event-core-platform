@@ -2,34 +2,27 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\SoftDeletesResource;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Models\Order;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class OrderController extends Controller
 {
+    use SoftDeletesResource;
+
     public function index(): Response
     {
-        $orders = Order::with(['attendee.user', 'event', 'orderItems.ticket'])
-            ->latest('updated_at')
-            ->get();
-
         return Inertia::render('Admin/orders/Index', [
-            'orders' => $orders,
+            'orders' => Order::query()
+                ->with(['attendee.user', 'event', 'orderItems.ticket'])
+                ->latest('updated_at')
+                ->get(),
         ]);
-    }
-
-    public function create(): RedirectResponse
-    {
-        return redirect()->route('orders.index');
-    }
-
-    public function store(): RedirectResponse
-    {
-        return redirect()->route('orders.index');
     }
 
     public function show(Order $order): Response
@@ -43,11 +36,7 @@ class OrderController extends Controller
 
     public function edit(Order $order): Response
     {
-        $order->load(['attendee.user', 'event', 'orderItems.ticket']);
-
-        return Inertia::render('Admin/orders/Edit', [
-            'order' => $order,
-        ]);
+        return $this->show($order);
     }
 
     public function update(UpdateOrderRequest $request, Order $order): RedirectResponse
@@ -70,31 +59,36 @@ class OrderController extends Controller
 
     public function trashed(): Response
     {
-        $orders = Order::onlyTrashed()
-            ->with(['attendee.user', 'event'])
-            ->latest('updated_at')
-            ->get();
-
-        return Inertia::render('Admin/orders/Trashed', [
-            'orders' => $orders,
-        ]);
+        return $this->renderTrashed();
     }
 
     public function restore(Order $order): RedirectResponse
     {
-        $order->restore();
-
-        return redirect()
-            ->route('orders.trashed')
-            ->with('success', 'Order restored successfully.');
+        return $this->restoreModel($order);
     }
 
     public function delete(Order $order): RedirectResponse
     {
-        $order->forceDelete();
+        return $this->forceDeleteModel($order);
+    }
 
-        return redirect()
-            ->route('orders.trashed')
-            ->with('success', 'Order deleted permanently.');
+    protected function softDeleteQuery(): Builder
+    {
+        return Order::query()->with(['attendee.user', 'event']);
+    }
+
+    protected function trashedInertiaPage(): string
+    {
+        return 'Admin/orders/Trashed';
+    }
+
+    protected function trashedPropName(): string
+    {
+        return 'orders';
+    }
+
+    protected function trashedRouteName(): string
+    {
+        return 'orders.trashed';
     }
 }

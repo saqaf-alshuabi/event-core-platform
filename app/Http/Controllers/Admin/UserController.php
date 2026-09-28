@@ -2,46 +2,28 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\SoftDeletesResource;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class UserController extends Controller
 {
+    use SoftDeletesResource;
+
     public function index(): Response
     {
-        $users = User::query()
-            ->latest('updated_at')
-            ->get(['id', 'name', 'email', 'is_admin', 'created_at', 'updated_at']);
-
         return Inertia::render('Admin/users/Index', [
-            'users' => $users,
+            'users' => User::query()
+                ->latest('updated_at')
+                ->get(['id', 'name', 'email', 'is_admin', 'created_at', 'updated_at']),
         ]);
     }
 
     public function create(): RedirectResponse
-    {
-        return redirect()->route('users.index');
-    }
-
-    public function store(): RedirectResponse
-    {
-        return redirect()->route('users.index');
-    }
-
-    public function show(User $user): RedirectResponse
-    {
-        return redirect()->route('users.index');
-    }
-
-    public function edit(User $user): RedirectResponse
-    {
-        return redirect()->route('users.index');
-    }
-
-    public function update(): RedirectResponse
     {
         return redirect()->route('users.index');
     }
@@ -57,28 +39,36 @@ class UserController extends Controller
 
     public function trashed(): Response
     {
-        $users = User::onlyTrashed()->latest('updated_at')->get();
-
-        return Inertia::render('Admin/users/Trashed', [
-            'users' => $users,
-        ]);
+        return $this->renderTrashed();
     }
 
     public function restore(User $user): RedirectResponse
     {
-        $user->restore();
-
-        return redirect()
-            ->route('users.trashed')
-            ->with('success', 'User restored successfully.');
+        return $this->restoreModel($user);
     }
 
     public function delete(User $user): RedirectResponse
     {
-        $user->forceDelete();
+        return $this->forceDeleteModel($user);
+    }
 
-        return redirect()
-            ->route('users.trashed')
-            ->with('success', 'User deleted permanently.');
+    protected function softDeleteQuery(): Builder
+    {
+        return User::query();
+    }
+
+    protected function trashedInertiaPage(): string
+    {
+        return 'Admin/users/Trashed';
+    }
+
+    protected function trashedPropName(): string
+    {
+        return 'users';
+    }
+
+    protected function trashedRouteName(): string
+    {
+        return 'users.trashed';
     }
 }

@@ -1,69 +1,64 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
-use Inertia\Inertia;
+use App\Http\Controllers\Concerns\SoftDeletesResource;
 use App\Http\Controllers\Controller;
-use App\Models\Event;
 use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateEventRequest;
+use App\Models\Event;
 use App\Models\EventImage;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class EventController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    use SoftDeletesResource;
+
+    public function index(): Response
     {
-        $events = Event::with('eventImages')->latest('updated_at')->get();
-        return Inertia::render('Admin/events/Index', ['events' => $events]);
+        return Inertia::render('Admin/events/Index', [
+            'events' => Event::query()->with('eventImages')->latest('updated_at')->get(),
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function create(): Response
     {
         return Inertia::render('Admin/events/Create');
     }
 
-    public function store(StoreEventRequest $request)
+    public function store(StoreEventRequest $request): RedirectResponse
     {
+        $organizer = Auth::user()?->organizer;
+
+        abort_unless($organizer, 403, 'Organizer profile required.');
+
         $event = Event::create([
-            'title' => $request->input('title'),
-            'description' => $request->input('description'),
-            'location' => $request->input('location'),
-            'start_date' => $request->input('start_date'),
-            'end_date' => $request->input('end_date'),
-            'organizer_id' => Auth::user()->organizer->id,
+            ...$request->safe()->only(['title', 'description', 'location', 'start_date', 'end_date']),
+            'organizer_id' => $organizer->id,
         ]);
 
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('event_images', 'public');
-            EventImage::create([
-                'event_id' => $event->id,
-                'url' => $imagePath,
-            ]);
-        }
+        $this->storeEventImage($request, $event);
 
-        return redirect()->route('events.index')->with('success', 'Event created successfully.');
+        return redirect()
+            ->route('events.index')
+            ->with('success', 'Event created successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Event $event)
+    public function show(Event $event): Response
     {
-        $event->load('eventImages', 'organizer.user');
-        return Inertia::render('Admin/events/Show', ['event' => $event]);
+        $event->load(['eventImages', 'organizer.user']);
+
+        return Inertia::render('Admin/events/Show', [
+            'event' => $event,
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Event $event)
+    public function edit(Event $event): Response
     {
         $event->load('eventImages');
 
@@ -79,63 +74,92 @@ class EventController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateEventRequest $request, Event $event)
+    public function update(UpdateEventRequest $request, Event $event): RedirectResponse
     {
-        $event->load('eventImages');
-        $event->update($request->validated());
+        $event->update($request->safe()->only([
+            'title',
+            'description',
+            'location',
+            'start_date',
+            'end_date',
+        ]));
+
         if ($request->hasFile('image')) {
-            // Delete old image if exists
-
-            if ($event->eventImages()->exists()) {
-                Storage::disk('public')->delete($event->eventImages->first()->url);
-                $event->eventImages()->delete();
-            }
-
-            $imagePath = $request->file('image')->store('event_images', 'public');
-            EventImage::create([
-                'event_id' => $event->id,
-                'url' => $imagePath,
-            ]);
+            $this->replaceEventImage($request, $event);
         }
 
-        session()->flash('success', 'Event updated successfully.');
-        return redirect()->route('events.index');
+        return redirect()
+            ->route('events.index')
+            ->with('success', 'Event updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Event $event)
+    public function destroy(Event $event): RedirectResponse
     {
         $event->delete();
-        session()->flash('success', 'Event deleted successfully.');
-    }
-    /**
-     * Display a listing of the trashed resources.
-     */
-    public function trashed()
-    {
-        $events = Event::onlyTrashed()->with('eventImages')->latest('updated_at')->get();
-        return Inertia::render('Admin/events/Trashed', ['events' => $events]);
+
+        return redirect()
+            ->route('events.index')
+            ->with('success', 'Event deleted successfully.');
     }
 
-    /**
-     * Restore the specified resource.
-     */
-    public function restore(Event $event)
+    public function trashed(): Response
     {
-        $event->restore();
-        session()->flash('success', 'Event restored successfully.');
+        return $this->renderTrashed();
     }
-    /**
-     * Delete the specified resource.
-     */
-    public function delete(Event $event)
+
+    public function restore(Event $event): RedirectResponse
     {
-        $event->forceDelete();
-        session()->flash('success', 'Event deleted permanently.');
+        return $this->restoreModel($event);
+    }
+
+    public function delete(Event $event): RedirectResponse
+    {
+        return $this->forceDeleteModel($event);
+    }
+
+    protected function softDeleteQuery(): Builder
+    {
+        return Event::query()->with('eventImages');
+    }
+
+    protected function trashedInertiaPage(): string
+    {
+        return 'Admin/events/Trashed';
+    }
+
+    protected function trashedPropName(): string
+    {
+        return 'events';
+    }
+
+    protected function trashedRouteName(): string
+    {
+        return 'events.trashed';
+    }
+
+    private function storeEventImage(StoreEventRequest|UpdateEventRequest $request, Event $event): void
+    {
+        if (! $request->hasFile('image')) {
+            return;
+        }
+
+        $path = $request->file('image')->store('event_images', 'public');
+
+        EventImage::create([
+            'event_id' => $event->id,
+            'url' => $path,
+        ]);
+    }
+
+    private function replaceEventImage(UpdateEventRequest $request, Event $event): void
+    {
+        $existing = $event->eventImages()->first();
+
+        if ($existing) {
+            Storage::disk('public')->delete($existing->url);
+            $existing->delete();
+        }
+
+        $this->storeEventImage($request, $event);
     }
 }

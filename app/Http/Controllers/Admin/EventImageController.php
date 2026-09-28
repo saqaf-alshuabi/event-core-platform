@@ -2,92 +2,75 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Inertia\Inertia;
-
 use App\Http\Controllers\Controller;
-use App\Models\EventImage;
 use App\Http\Requests\StoreEventImageRequest;
 use App\Http\Requests\UpdateEventImageRequest;
 use App\Models\Event;
+use App\Models\EventImage;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class EventImageController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function create(Event $event): Response
     {
-        //
+        return Inertia::render('Admin/event_images/Create', [
+            'event' => $event,
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(Event $event)
+    public function store(StoreEventImageRequest $request, Event $event): RedirectResponse
     {
-        return Inertia::render('Admin/event_images/Create', ['event' => $event]);
+        $path = $request->file('image')->store('event_images', 'public');
+
+        EventImage::create([
+            'event_id' => $event->id,
+            'url' => $path,
+        ]);
+
+        return redirect()
+            ->route('events.show', $event)
+            ->with('success', 'Event image uploaded successfully.');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreEventImageRequest $request, Event $event)
+    public function edit(EventImage $eventImage): Response
     {
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('event_images', 'public');
-            EventImage::create([
-                'event_id' => $event->id,
-                'url' => $imagePath,
-            ]);
-        }
-        session()->flash('success', 'EventImage created successfully.');
-        return redirect()->route('events.show', $event->id);
+        return Inertia::render('Admin/event_images/Edit', [
+            'eventImage' => $eventImage,
+        ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(EventImage $eventImage)
-    {
-        //
-    }
-
-    public function edit(EventImage $eventImage)
-    {
-        return Inertia::render('Admin/event_images/Edit', ['eventImage' => $eventImage]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateEventImageRequest $request, EventImage $eventImage)
+    public function update(UpdateEventImageRequest $request, EventImage $eventImage): RedirectResponse
     {
         if ($request->hasFile('image')) {
             if ($eventImage->url) {
                 Storage::disk('public')->delete($eventImage->url);
             }
 
-            $imagePath = $request->file('image')->store('event_images', 'public');
             $eventImage->update([
-                'url' => $imagePath,
+                'url' => $request->file('image')->store('event_images', 'public'),
             ]);
         }
 
-        session()->flash('success', 'EventImage updated successfully.');
-        return redirect()->route('events.index');
+        return redirect()
+            ->route('events.show', $eventImage->event_id)
+            ->with('success', 'Event image updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(EventImage $eventImage)
+    public function destroy(EventImage $eventImage): RedirectResponse
     {
+        $eventId = $eventImage->event_id;
+
         if ($eventImage->url) {
             Storage::disk('public')->delete($eventImage->url);
         }
+
         $eventImage->delete();
-        session()->flash('success', 'EventImage deleted successfully.');
-        return redirect()->route('events.show', $eventImage->event_id);
+
+        return redirect()
+            ->route('events.show', $eventId)
+            ->with('success', 'Event image deleted successfully.');
     }
 }
