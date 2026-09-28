@@ -54,7 +54,6 @@ const data = computed<Tickets[]>(() => {
         eventImg: ticket.event.event_images[0]?.image_url,
     }));
 });
-console.log(props.tickets);
 
 const userColumns: ColumnDef<Tickets>[] = [
     {

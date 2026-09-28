@@ -10,7 +10,7 @@ import web from '@/routes/web';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
-const { items, totalPrice, totalItems } = useCart();
+const { items, totalPrice, totalItems, clearCart } = useCart();
 
 const hasItems = computed(() => items.value.length > 0);
 const form = useForm({
@@ -18,10 +18,15 @@ const form = useForm({
     total_price: totalPrice.value,
     total_items: totalItems.value,
 });
-const submit = () => {
-    console.log('submitting form',items.value);
 
-    form.post(web.orders.store().url);
+const submit = () => {
+    form.transform(() => ({
+        items: items.value,
+        total_price: totalPrice.value,
+        total_items: totalItems.value,
+    })).post(web.orders.store().url, {
+        onSuccess: () => clearCart(),
+    });
 };
 </script>
 

@@ -1,11 +1,11 @@
-import { useCartStore } from '@/stores/cartStore';
+import { useCartStore, type CartItem } from '@/stores/cartStore';
 import { storeToRefs } from 'pinia';
 
 export function useCart() {
     const cartStore = useCartStore();
     const { items, totalItems, totalPrice } = storeToRefs(cartStore);
 
-    const addItem = (item: any) => {
+    const addItem = (item: CartItem) => {
         cartStore.addItem(item);
     };
 
@@ -13,7 +13,7 @@ export function useCart() {
         cartStore.removeItem(itemId);
     };
 
-    const updateItemQuantity = (itemId: number, quantity: any) => {
+    const updateItemQuantity = (itemId: number, quantity: number | string) => {
         cartStore.updateItemQuantity(itemId, quantity);
     };
 

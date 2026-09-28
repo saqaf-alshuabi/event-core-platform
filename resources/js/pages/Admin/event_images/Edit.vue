@@ -26,7 +26,6 @@ const form = useForm({
     _method: 'put',
 });
 
-console.log(props.eventImage);
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -49,7 +48,6 @@ const submit = () => {
     });
 };
 
-console.log('id eventImage', props.eventImage.id);
 </script>
 
 <template>

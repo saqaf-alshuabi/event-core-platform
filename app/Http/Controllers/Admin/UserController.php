@@ -4,91 +4,81 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     * @route '/users'
-     */
-    public function index()
+    public function index(): Response
     {
-        $users = User::latest('updated_at')->get();
-        return Inertia::render('Admin/users/Index', ['users' => $users]);
+        $users = User::query()
+            ->latest('updated_at')
+            ->get(['id', 'name', 'email', 'is_admin', 'created_at', 'updated_at']);
+
+        return Inertia::render('Admin/users/Index', [
+            'users' => $users,
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function create(): RedirectResponse
     {
-        return dd('saqaf');
-    }
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
+        return redirect()->route('users.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function store(): RedirectResponse
     {
-        //
+        return redirect()->route('users.index');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(User $user)
+    public function show(User $user): RedirectResponse
     {
-        echo 'fff';
-        return dd($user);
+        return redirect()->route('users.index');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, User $user) {}
+    public function edit(User $user): RedirectResponse
+    {
+        return redirect()->route('users.index');
+    }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(User $user)
+    public function update(): RedirectResponse
+    {
+        return redirect()->route('users.index');
+    }
+
+    public function destroy(User $user): RedirectResponse
     {
         $user->delete();
-        session()->flash('success', 'User deleted successfully.');
+
+        return redirect()
+            ->route('users.index')
+            ->with('success', 'User deleted successfully.');
     }
 
-    /**
-     * Display a listing of the trashed resources.
-     */
-    public function trashed()
+    public function trashed(): Response
     {
         $users = User::onlyTrashed()->latest('updated_at')->get();
-        return Inertia::render('Admin/users/Trashed', ['users' => $users]);
+
+        return Inertia::render('Admin/users/Trashed', [
+            'users' => $users,
+        ]);
     }
-    /**
-     * Restore the specified resource.
-     */
-    public function restore(User $user)
+
+    public function restore(User $user): RedirectResponse
     {
         $user->restore();
-        session()->flash('success', 'User restored successfully.');
+
+        return redirect()
+            ->route('users.trashed')
+            ->with('success', 'User restored successfully.');
     }
-    /**
-     * Delete the specified resource.
-     */
-    public function delete(User $user)
+
+    public function delete(User $user): RedirectResponse
     {
-        //  return dd('saqaf'. $user);
         $user->forceDelete();
 
-        session()->flash('success', 'User deleted permanently.');
+        return redirect()
+            ->route('users.trashed')
+            ->with('success', 'User deleted permanently.');
     }
 }

@@ -15,7 +15,6 @@ const partName = computed(() => {
     const partName = props.name[0];
     return partName.toUpperCase();
 });
-console.log('src11', props.src);
 </script>
 
 <template>

@@ -27,3 +27,13 @@ php artisan serve
 
 ## Note
 Portfolio project. Demo link coming soon.
+
+## Demo admin (after seeding)
+- Email: `admin@eventcore.test`
+- Password: `password`
+- Admin routes require `is_admin = true`.
+
+## Demo admin (after seeding)
+- Email: `admin@eventcore.test`
+- Password: `password`
+- Admin routes require the `admin` middleware (`is_admin = true`).

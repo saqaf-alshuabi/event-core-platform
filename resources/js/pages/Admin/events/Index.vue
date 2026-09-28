@@ -54,7 +54,6 @@ const data = computed<Events[]>(() => {
         url: event.event_images[0]?.image_url,
     }));
 });
-console.log(props.events);
 
 const userColumns: ColumnDef<Events>[] = [
     {
@@ -103,7 +102,6 @@ const userColumns: ColumnDef<Events>[] = [
         enableHiding: false,
         cell: ({ row }) => {
             const event = row.original;
-            console.log(event);
 
             return h(
                 'div',

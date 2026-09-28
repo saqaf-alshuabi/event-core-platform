@@ -8,7 +8,6 @@ import type { Event } from '@/types';
 const props = defineProps({
     events: Array<Event>(),
 });
-console.log(props.events);
 </script>
 
 <template>

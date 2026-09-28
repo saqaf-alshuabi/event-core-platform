@@ -46,7 +46,6 @@ const submit = () => {
     form.patch(orders.update(props.order.id).url);
 };
 
-console.log('props', props.order);
 </script>
 
 <template>

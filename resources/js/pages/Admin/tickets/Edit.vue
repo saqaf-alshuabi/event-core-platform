@@ -28,7 +28,6 @@ const form = useForm({
     quantity: props.ticket.quantity,
 });
 
-console.log(props.ticket);
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -46,7 +45,6 @@ const submit = () => {
     form.put(tickets.update(props.ticket.id).url);
 };
 
-console.log('id eventImage', props.ticket.id);
 </script>
 
 <template>

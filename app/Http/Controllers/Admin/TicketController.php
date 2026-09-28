@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Inertia\Inertia;
+
 use App\Http\Controllers\Controller;
 use App\Models\Ticket;
 use App\Http\Requests\StoreTicketRequest;
@@ -16,7 +18,7 @@ class TicketController extends Controller
     public function index()
     {
         $tickets = Ticket::with('event.eventImages')->latest('updated_at')->get();
-        return Inertia('Admin/tickets/Index', ['tickets' => $tickets]);
+        return Inertia::render('Admin/tickets/Index', ['tickets' => $tickets]);
     }
 
     /**
@@ -25,7 +27,7 @@ class TicketController extends Controller
     public function create()
     {
         $events = Event::latest('updated_at')->get();
-        return Inertia('Admin/tickets/Create', ['events' => $events]);
+        return Inertia::render('Admin/tickets/Create', ['events' => $events]);
     }
 
     /**
@@ -51,7 +53,7 @@ class TicketController extends Controller
      */
     public function edit(Ticket $ticket)
     {
-        return Inertia('Admin/tickets/Edit', ['ticket' => $ticket]);
+        return Inertia::render('Admin/tickets/Edit', ['ticket' => $ticket]);
     }
 
     /**
@@ -79,7 +81,7 @@ class TicketController extends Controller
     public function trashed()
     {
         $tickets = Ticket::onlyTrashed()->with('event.eventImages')->latest('updated_at')->get();
-        return Inertia('Admin/tickets/Trashed', ['tickets' => $tickets]);
+        return Inertia::render('Admin/tickets/Trashed', ['tickets' => $tickets]);
     }
 
     /**

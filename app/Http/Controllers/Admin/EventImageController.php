@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Inertia\Inertia;
+
 use App\Http\Controllers\Controller;
 use App\Models\EventImage;
 use App\Http\Requests\StoreEventImageRequest;
@@ -24,7 +26,7 @@ class EventImageController extends Controller
      */
     public function create(Event $event)
     {
-        return Inertia('Admin/event_images/Create', ['event' => $event]);
+        return Inertia::render('Admin/event_images/Create', ['event' => $event]);
     }
 
     /**
@@ -53,7 +55,7 @@ class EventImageController extends Controller
 
     public function edit(EventImage $eventImage)
     {
-        return Inertia('Admin/event_images/Edit', ['eventImage' => $eventImage]);
+        return Inertia::render('Admin/event_images/Edit', ['eventImage' => $eventImage]);
     }
 
     /**

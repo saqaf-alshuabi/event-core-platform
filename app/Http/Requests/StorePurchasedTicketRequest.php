@@ -11,7 +11,7 @@ class StorePurchasedTicketRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return (bool) $this->user()?->is_admin;
     }
 
     /**

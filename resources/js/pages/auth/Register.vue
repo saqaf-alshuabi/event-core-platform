@@ -18,7 +18,6 @@ const isOrganizer = computed(() => {
     return organizer.value;
 });
 watch(isOrganizer, (value) => {
-    console.log('isOrganizer:', value);
 });
 </script>
 

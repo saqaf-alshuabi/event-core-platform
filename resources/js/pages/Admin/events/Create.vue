@@ -59,7 +59,6 @@ const onSubmit = handleSubmit((values) => {
 
     inertiaForm.post(events.store().url, {
         onError: (errors) => {
-            console.log(errors);
             setErrors(errors);
         },
         onSuccess: () => {

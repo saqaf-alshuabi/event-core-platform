@@ -26,7 +26,6 @@ const closeAlert = () => {
 };
 const form = useForm({});
 const deleteItem = () => {
-    console.log(props.deleteRoute);
 
     form.delete(props.deleteRoute, {
         onSuccess: () => {

@@ -4,16 +4,19 @@ namespace Database\Seeders;
 
 use App\Models\Attendee;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
+        User::factory()
+            ->admin()
+            ->create([
+                'name' => 'Admin',
+                'email' => 'admin@eventcore.test',
+            ]);
+
         User::factory(10)
             ->has(Attendee::factory()->count(1))
             ->create();

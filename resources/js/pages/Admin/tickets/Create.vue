@@ -45,7 +45,6 @@ const breadcrumbs: BreadcrumbItem[] = [
 const submit = () => {
     form.post(tickets.store().url);
 };
-console.log('props.events', props.events);
 </script>
 
 <template>

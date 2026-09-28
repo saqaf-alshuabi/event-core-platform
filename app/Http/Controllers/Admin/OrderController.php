@@ -3,96 +3,98 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Order;
-use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
+use App\Models\Order;
+use Illuminate\Http\RedirectResponse;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class OrderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): Response
     {
-        $orders = Order::with('attendee.user', 'event')->latest('updated_at')->get();
-        return Inertia('Admin/orders/Index', ['orders' => $orders]);
+        $orders = Order::with(['attendee.user', 'event', 'orderItems.ticket'])
+            ->latest('updated_at')
+            ->get();
+
+        return Inertia::render('Admin/orders/Index', [
+            'orders' => $orders,
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function create(): RedirectResponse
     {
-        return Inertia('Admin/orders/Create');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreOrderRequest $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Order $order)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Order $order)
-    {
-        return Inertia('Admin/orders/Edit', ['order' => $order]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateOrderRequest $request, Order $order)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Order $order)
-    {
-        $order->delete();
-        session()->flash('success', 'Order deleted successfully.');
         return redirect()->route('orders.index');
     }
-    /**
-     * Display a listing of the trashed resources.
-     */
-    public function trashed()
+
+    public function store(): RedirectResponse
     {
-        $orders = Order::onlyTrashed()->with('attendee.user', 'event')->latest('updated_at')->get();
-        return Inertia('Admin/orders/Trashed', ['orders' => $orders]);
+        return redirect()->route('orders.index');
     }
 
-    /**
-     * Restore the specified resource.
-     */
-    public function restore(Order $order)
+    public function show(Order $order): Response
+    {
+        $order->load(['attendee.user', 'event', 'orderItems.ticket', 'purchasedTickets']);
+
+        return Inertia::render('Admin/orders/Edit', [
+            'order' => $order,
+        ]);
+    }
+
+    public function edit(Order $order): Response
+    {
+        $order->load(['attendee.user', 'event', 'orderItems.ticket']);
+
+        return Inertia::render('Admin/orders/Edit', [
+            'order' => $order,
+        ]);
+    }
+
+    public function update(UpdateOrderRequest $request, Order $order): RedirectResponse
+    {
+        $order->update($request->validated());
+
+        return redirect()
+            ->route('orders.index')
+            ->with('success', 'Order updated successfully.');
+    }
+
+    public function destroy(Order $order): RedirectResponse
+    {
+        $order->delete();
+
+        return redirect()
+            ->route('orders.index')
+            ->with('success', 'Order deleted successfully.');
+    }
+
+    public function trashed(): Response
+    {
+        $orders = Order::onlyTrashed()
+            ->with(['attendee.user', 'event'])
+            ->latest('updated_at')
+            ->get();
+
+        return Inertia::render('Admin/orders/Trashed', [
+            'orders' => $orders,
+        ]);
+    }
+
+    public function restore(Order $order): RedirectResponse
     {
         $order->restore();
-        session()->flash('success', 'Order restored successfully.');
-        return redirect()->route('orders.trashed');
+
+        return redirect()
+            ->route('orders.trashed')
+            ->with('success', 'Order restored successfully.');
     }
 
-    /**
-     * Delete the specified resource.
-     */
-    public function delete(Order $order)
+    public function delete(Order $order): RedirectResponse
     {
         $order->forceDelete();
-        session()->flash('success', 'Order deleted permanently.');
-        return redirect()->route('orders.trashed');
+
+        return redirect()
+            ->route('orders.trashed')
+            ->with('success', 'Order deleted permanently.');
     }
 }

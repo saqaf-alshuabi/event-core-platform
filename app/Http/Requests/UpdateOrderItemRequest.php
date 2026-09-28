@@ -2,11 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\OrderStatus;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class UpdateOrderRequest extends FormRequest
+class UpdateOrderItemRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -16,7 +14,8 @@ class UpdateOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => ['required', Rule::enum(OrderStatus::class)],
+            'quantity' => ['sometimes', 'integer', 'min:1'],
+            'price' => ['sometimes', 'numeric', 'min:0'],
         ];
     }
 }

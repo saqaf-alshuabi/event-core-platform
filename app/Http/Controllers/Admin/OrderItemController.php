@@ -4,65 +4,69 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\OrderItem;
-use App\Http\Requests\StoreOrderItemRequest;
-use App\Http\Requests\UpdateOrderItemRequest;
+use Illuminate\Http\RedirectResponse;
 
 class OrderItemController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): RedirectResponse
     {
-        $orderItems = OrderItem::with('order.attendee.user', 'ticket.event')->latest('updated_at')->get();
-        dd($orderItems);
+        return redirect()->route('orders.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function create(): RedirectResponse
     {
-        //
+        return redirect()->route('orders.index');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreOrderItemRequest $request)
+    public function store(): RedirectResponse
     {
-        //
+        return redirect()->route('orders.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(OrderItem $orderItem)
+    public function show(OrderItem $orderItem): RedirectResponse
     {
-        //
+        return redirect()->route('orders.index');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(OrderItem $orderItem)
+    public function edit(OrderItem $orderItem): RedirectResponse
     {
-        //
+        return redirect()->route('orders.index');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateOrderItemRequest $request, OrderItem $orderItem)
+    public function update(): RedirectResponse
     {
-        //
+        return redirect()->route('orders.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(OrderItem $orderItem)
+    public function destroy(OrderItem $orderItem): RedirectResponse
     {
-        //
+        $orderItem->delete();
+
+        return redirect()
+            ->route('orders.index')
+            ->with('success', 'Order item deleted successfully.');
+    }
+
+    public function trashed(): RedirectResponse
+    {
+        return redirect()->route('orders.trashed');
+    }
+
+    public function restore(OrderItem $orderItem): RedirectResponse
+    {
+        $orderItem->restore();
+
+        return redirect()
+            ->route('orders.trashed')
+            ->with('success', 'Order item restored successfully.');
+    }
+
+    public function delete(OrderItem $orderItem): RedirectResponse
+    {
+        $orderItem->forceDelete();
+
+        return redirect()
+            ->route('orders.trashed')
+            ->with('success', 'Order item deleted permanently.');
     }
 }

@@ -50,7 +50,6 @@ const data = computed<Tickets[]>(() => {
         eventImg: ticket.event.event_images[0]?.image_url,
     }));
 });
-console.log(props.tickets);
 
 const userColumns: ColumnDef<Tickets>[] = [
     {
@@ -109,7 +108,6 @@ const userColumns: ColumnDef<Tickets>[] = [
         enableHiding: false,
         cell: ({ row }) => {
             const ticket = row.original;
-            console.log(ticket);
 
             return h(
                 'div',

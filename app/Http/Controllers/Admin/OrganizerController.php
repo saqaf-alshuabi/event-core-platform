@@ -3,96 +3,90 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Organizer;
 use App\Http\Requests\StoreOrganizerRequest;
 use App\Http\Requests\UpdateOrganizerRequest;
-use Inertia\Inertia; // This line is already present and correct.
+use App\Models\Organizer;
+use Illuminate\Http\RedirectResponse;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class OrganizerController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): Response
     {
         $organizers = Organizer::with('user')->latest('updated_at')->get();
-        // return dd($organizers);
-        return Inertia::render('Admin/organizers/Index', ['organizers' => $organizers]);
+
+        return Inertia::render('Admin/organizers/Index', [
+            'organizers' => $organizers,
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function create(): RedirectResponse
     {
-        //
+        return redirect()->route('organizers.index');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreOrganizerRequest $request)
+    public function store(StoreOrganizerRequest $request): RedirectResponse
     {
-        //
+        Organizer::create($request->validated());
+
+        return redirect()
+            ->route('organizers.index')
+            ->with('success', 'Organizer created successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Organizer $organizer)
+    public function show(Organizer $organizer): RedirectResponse
     {
-        //
+        return redirect()->route('organizers.index');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Organizer $organizer)
+    public function edit(Organizer $organizer): RedirectResponse
     {
-        //
+        return redirect()->route('organizers.index');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateOrganizerRequest $request, Organizer $organizer)
+    public function update(UpdateOrganizerRequest $request, Organizer $organizer): RedirectResponse
     {
-        //
+        $organizer->update($request->validated());
+
+        return redirect()
+            ->route('organizers.index')
+            ->with('success', 'Organizer updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Organizer $organizer)
+    public function destroy(Organizer $organizer): RedirectResponse
     {
         $organizer->delete();
-        session()->flash('success', 'Organizer deleted successfully.');
+
+        return redirect()
+            ->route('organizers.index')
+            ->with('success', 'Organizer deleted successfully.');
     }
 
-    /**
-     * Display a listing of the trashed resources.
-     */
-    public function trashed()
+    public function trashed(): Response
     {
         $organizers = Organizer::with('user')->onlyTrashed()->latest('updated_at')->get();
 
-        return Inertia::render('Admin/organizers/Trashed', ['organizers' => $organizers]);
+        return Inertia::render('Admin/organizers/Trashed', [
+            'organizers' => $organizers,
+        ]);
     }
-    /**
-     * Restore the specified resource.
-     */
-    public function restore(Organizer $organizer)
+
+    public function restore(Organizer $organizer): RedirectResponse
     {
         $organizer->restore();
-        session()->flash('success', 'Organizer restored successfully.');
+
+        return redirect()
+            ->route('organizers.trashed')
+            ->with('success', 'Organizer restored successfully.');
     }
-    /**
-     * Delete the specified resource.
-     */
-    public function delete(Organizer $organizer)
+
+    public function delete(Organizer $organizer): RedirectResponse
     {
         $organizer->forceDelete();
 
-        session()->flash('success', 'Organizer deleted permanently.');
+        return redirect()
+            ->route('organizers.trashed')
+            ->with('success', 'Organizer deleted permanently.');
     }
 }

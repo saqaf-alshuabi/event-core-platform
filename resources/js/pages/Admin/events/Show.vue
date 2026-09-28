@@ -119,7 +119,6 @@ const eventColumns = computed<ColumnDef<EventImages>[]>(() => [
         enableHiding: false,
         cell: ({ row }) => {
             const eventItem = row.original;
-            console.log(event);
 
             return h(
                 'div',
@@ -142,7 +141,6 @@ const formattedCreatedAt = computed(() => formatDate(props.event.created_at));
 
 const hasImages = computed(() => props.event.event_images && props.event.event_images.length > 0);
 
-console.log('event1111111', eventImages);
 </script>
 <template>
     <Head :title="`Event: ${props.event.title}`" />

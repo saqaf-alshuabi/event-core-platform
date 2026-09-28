@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
-interface CartItem {
+export interface CartItem {
     id: number;
     name: string;
     price: number;
@@ -34,21 +34,16 @@ export const useCartStore = defineStore('cart', () => {
         items.value = items.value.filter((item) => item.id !== itemId);
     };
 
-    const updateItemQuantity = (itemId: number, quantity: any) => {
-        if (quantity <= 0) {
-            removeItem(itemId);
-            return;
-        }
-        if (typeof quantity === 'string') {
-            quantity = parseInt(quantity, 10);
-        }
+    const updateItemQuantity = (itemId: number, quantity: number | string) => {
+        const parsed = typeof quantity === 'string' ? Number.parseInt(quantity, 10) : quantity;
 
-        if (isNaN(quantity)) {
+        if (Number.isNaN(parsed) || parsed <= 0) {
+            removeItem(itemId);
             return;
         }
         const item = items.value.find((i) => i.id === itemId);
         if (item) {
-            item.quantity = quantity;
+            item.quantity = parsed;
         }
     };
 

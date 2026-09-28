@@ -106,7 +106,6 @@ const userColumns: ColumnDef<Order>[] = [
         enableHiding: false,
         cell: ({ row }) => {
             const order = row.original;
-            console.log(order);
 
             return h(
                 'div',
@@ -125,7 +124,6 @@ const deleteSusses = (id: number) => {
     props.orders.value = props.orders.value.filter((order: { id: number }) => order.id !== id);
 };
 
-console.log('orders', props.orders[0]);
 </script>
 
 <template>
