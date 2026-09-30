@@ -24,6 +24,14 @@
 
 ---
 
+## 🔒 Security & Authorization
+
+* Protected administrative routes via custom middleware (`EnsureUserIsAdmin`).
+* Policy-driven authorization rules across core domain models.
+* Integrated Two-Factor Authentication (2FA) and soft-delete recovery workflows.
+
+---
+
 ## 🛠️ Stack
 
 * **Backend:** Laravel 12
